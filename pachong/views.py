@@ -7,7 +7,7 @@ from django.shortcuts import render
 
 
 #登录
-from pachong.models import User,RecruitInfo
+from crawl_pachong.pachong.models import User,RecruitInfo
 
 
 def login(request):
