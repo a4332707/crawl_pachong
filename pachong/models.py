@@ -35,14 +35,4 @@ class RecruitInfo(models.Model):
         unique_together = (('website', 'city', 'job_category', 'job_name'),)
 
 
-class User(models.Model):
-    username = models.CharField(max_length=255)
-    password = models.CharField(max_length=255)
-    telphone = models.CharField(max_length=255)
-    email = models.CharField(max_length=255)
-    status = models.IntegerField()
-    time = models.DateTimeField()
 
-    class Meta:
-        managed = False
-        db_table = 'user'
