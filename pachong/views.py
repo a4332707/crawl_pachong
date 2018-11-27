@@ -88,4 +88,5 @@ def get_map(request):
 
 
 def search_datas(request):
+    recruit_infor=RecruitInfo.objects.filter()
     pass
