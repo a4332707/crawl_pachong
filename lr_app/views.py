@@ -1,6 +1,9 @@
 from django.shortcuts import render
 
-from crawl_pachong.lr_app.models import User
+# from lr_app.models import User
+from crawl_pachong.lr_app.models import RecruitInfo
+
+
 
 
 # Create your views here.
