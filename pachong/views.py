@@ -85,3 +85,8 @@ def get_pie(request):
 
 def get_map(request):
     return render(request,"地图.html")
+
+
+def search_datas(request):
+    recruit_infor=RecruitInfo.objects.filter()
+    pass
