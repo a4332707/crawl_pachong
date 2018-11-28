@@ -36,9 +36,10 @@
 							<input type="text" id="fyZldz" name="fangyuanEntity.fyZldz" class="ui_input_txt02" />
 							<input type="button" value="查询" class="ui_input_btn01" onclick="search();" />
 
-                            <a  value="数据分析：柱状图",name="get_bar" href="/pachong/get_bar">柱状分析</a>
-                            <a  value="数据分析：饼图",name="get_pie" href="/pachong/get_pie">饼状分析</a>
-                            <a  value="数据分析：地图",name="get_map" href="/pachong/get_map">地图分析</a>
+                            <a  value="数据分析：柱状图",name="get_bar" href="{% url 'recruit:column' %}">柱状分析</a>
+                            <a  value="数据分析：饼图",name="get_pie" href="{% url 'recruit:pie' %}">饼状分析</a>
+                            <a  value="数据分析：地图",name="get_map" href="{% url 'recruit:map' %}">地图分析</a>
+                            <a  value="数据分析：地图",name="get_map" href="{% url 'recruit:line' %}">折线分析</a>
 						</div>
 					</div>
 				</div>
