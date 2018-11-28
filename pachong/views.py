@@ -1,16 +1,15 @@
 from django.core.paginator import Paginator
 from django.shortcuts import render
 
+from pachong.models import User, RecruitInfo
+
 # Create your views here.
 
 
 
 
 #登录
-from pachong.models import RecruitInfo
-from search_app.models import User
-
-
+# from crawl_pachong.pachong.models import User,RecruitInfo
 
 
 def login(request):
@@ -43,12 +42,12 @@ def register_logic(request):
     username = request.GET.get("username")
     email=request.GET.get("email")
     password=request.GET.get("password")
-    telphone=request.GET.get("telphone")
+    telephone=request.GET.get("telphone")
     # 判断用户名是否和数据库重复
     if User.objects.filter(username=username):
         return render(request,"register.html")
     else:
-        User(username=username,email=email,password=password,telphone=telphone).save()
+        User(username=username,email=email,password=password,telephone=telephone).save()
 
         return render(request,"login.html")
 
@@ -57,7 +56,6 @@ def register_logic(request):
 #主页面
 
 def main(request):
-
 
     return  render(request,"main.html")
     # return render(request,"main.html")
@@ -92,5 +90,4 @@ def get_map(request):
 
 def search_datas(request):
     recruit_infor=RecruitInfo.objects.filter().values()
-    re='dd'
     pass

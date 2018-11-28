@@ -25,7 +25,7 @@ SECRET_KEY = 'm*h-v-3pem5z$gkb=1rld$y@3)e4#w@wlm_d455u9r22$+lapi'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -132,3 +132,10 @@ SESSION_EXPIRE_AT_BROWSER_CLOSE=True
 STATIFILES_DIRS=[os.path.join(BASE_DIR,'static')]
 
 SESSION_SERIALIZER='django.contrib.sessions.serializers.PickleSerializer'
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.sina.com'
+EMAIL_PORT = 25
+EMAIL_HOST_USER = 'a4332707@sina.com'
+EMAIL_HOST_PASSWORD = 'zkf666888'
