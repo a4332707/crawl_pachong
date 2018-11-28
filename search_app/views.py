@@ -3,6 +3,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
 import happybase,hashlib
 # Create your views here.
+from django.db.models import Count, Max,Avg,Min,Sum
 from search_app.models import RecruitInfo
 # conn_hbase=happybase.Connection(host='172.16.14.56',port=9090)
 # conn_hbase.open()
@@ -62,3 +63,36 @@ def search_vague(request):
         data.append(i['job_name'])
     print(data)
     return JsonResponse({'data':data})
+def get_data(item):
+    return RecruitInfo.objects.filter(city=item).aggregate(Count('id'))['id__count']
+def get_data_category(item):
+    return RecruitInfo.objects.filter(job_category=item).aggregate(Count('id'))['id__count']
+def column(request):
+    num_bj=get_data('北京')
+    num_sh=get_data('上海')
+    num_sz=get_data('广州')
+    num_gz=get_data('深圳')
+    data=[num_bj,num_sh,num_sz,num_gz]
+    return render(request,'column.html',{'data':data})
+def pie(request):
+    python_web= get_data_category('Python Web')
+    crawler = get_data_category('爬虫')
+    big_data = get_data_category('大数据')
+    ai= get_data_category('AI')
+    data = [python_web,crawler,big_data,ai]
+    print(data)
+    return render(request, 'pie.html', {'data': data})
+def map(request):
+    num_bj=get_data('北京')
+    num_sh=get_data('上海')
+    num_sz=get_data('广州')
+    num_gz=get_data('深圳')
+    data=[num_bj,num_sh,num_sz,num_gz]
+    return render(request,'map.html',{'data':data})
+def line(request):
+    num_bj=get_data('北京')
+    num_sh=get_data('上海')
+    num_sz=get_data('广州')
+    num_gz=get_data('深圳')
+    data=[num_bj,num_sh,num_sz,num_gz]
+    return render(request,'line.html',{'data':data})
