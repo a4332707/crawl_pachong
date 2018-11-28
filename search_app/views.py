@@ -44,9 +44,6 @@ def page(request):
     else:
         time.sleep(2)
         return render(request,'menu.html',{'page':page,'num':num})
-
-
-
 # def search(request):
 #     num=request.GET.get('num')
 #     if not num:
@@ -133,3 +130,5 @@ class Vister:
                 self.all_time = 0
                 return None
         return True
+def test(request):
+    pass
