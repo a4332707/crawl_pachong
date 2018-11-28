@@ -50,10 +50,7 @@ class Migration(migrations.Migration):
                 ('email', models.CharField(max_length=255)),
                 ('status', models.IntegerField()),
                 ('time', models.DateTimeField()),
+                ('remark', models.CharField(max_length=255)),
             ],
-            options={
-                'db_table': 't_user',
-                'managed': False,
-            },
         ),
     ]
