@@ -45,9 +45,10 @@
 							<input  type="button" value="查询" class="ui_input_btn01" onclick="search();" />
 
 
-                            <a  value="数据分析：柱状图",name="get_bar" href="/pachong/get_bar">柱状分析</a>
-                            <a  value="数据分析：饼图",name="get_pie" href="/pachong/get_pie">饼状分析</a>
-                            <a  value="数据分析：地图",name="get_map" href="/pachong/get_map">地图分析</a>
+                            <a  value="数据分析：柱状图",name="get_bar" href="{% url 'recruit:column' %}">柱状分析</a>
+                            <a  value="数据分析：饼图",name="get_pie" href="{% url 'recruit:pie' %}">饼状分析</a>
+                            <a  value="数据分析：地图",name="get_map" href="{% url 'recruit:map' %}">地图分析</a>
+                            <a  value="数据分析：地图",name="get_map" href="{% url 'recruit:line' %}">折线分析</a>
 						</div>
 					</div>
 				</div>
@@ -114,47 +115,54 @@
     <script>
 
 {# ========模糊查询================================#}
-        var data=["北京","上海","广州","深圳"];
-        var value2=['Python Web','爬虫','大数据','AI'];
-        $("#fyZldz").keyup(function(e){
-            $("#vague").empty();
-            var txt=$("#fyZldz").val();
+{#        var data=["北京","上海","广州","深圳"];#}
+{#        var value2=['Python Web','爬虫','大数据','AI'];#}
+{#        $("#fyZldz").keyup(function(e){#}
+{#            $("#vague").empty();#}
+{#            var txt=$("#fyZldz").val();#}
+{##}
+{#            if(txt.length>0){#}
+{#                for(var i=0;i<data.length;i++){#}
+{#                    if(data[i].indexOf(txt)>=0){#}
+{#                        console.log(data[i]);#}
+{#                        $("#vague").append("<tr>"+#}
+{#                                                "<td>"+data[i]+"</td>"+#}
+{#                                           "</tr>"#}
+{#                        );#}
+{#                    }#}
+{#                }#}
+{#                $("#suggest").slideDown(200);#}
+{#            }else{#}
+{##}
+{#                $("#suggest").hide();#}
+{#            }#}
+{##}
+{##}
+{#            $("#vague").on("mouseover","tr",function(){#}
+{#                $(this).css("background-color","#abcdef");#}
+{#            });#}
+{#            $("#vague").on("mouseout","tr",function(){#}
+{#                $(this).css("background-color","#ffffff");#}
+{#            });#}
+{##}
+{#            $("#vague").on("click","tr",function(){#}
+{##}
+{#                var msg=$(this).text();#}
+{#                $("#fyZldz").val(msg);#}
+{##}
+{#                $("#suggest").hide();#}
+{#            });#}
+{#        });#}
+        function search() {
 
-            if(txt.length>0){
-                for(var i=0;i<data.length;i++){
-                    if(data[i].indexOf(txt)>=0){
-                        console.log(data[i]);
-                        $("#vague").append("<tr>"+
-                                                "<td>"+data[i]+"</td>"+
-                                           "</tr>"
-                        );
-                    }
-                }
-                $("#suggest").slideDown(200);
+            if($('#fyXq').val()=='城市'){
+                location.href="{% url 'recruit:page' %}?city="+$('#fyZldz').val()+"&num=1";
             }else{
-
-                $("#suggest").hide();
+                location.href="{% url 'recruit:page' %}?category="+$('#fyZldz').val()+"&num=1";
             }
 
-
-            $("#vague").on("mouseover","tr",function(){
-                $(this).css("background-color","#abcdef");
-            });
-            $("#vague").on("mouseout","tr",function(){
-                $(this).css("background-color","#ffffff");
-            });
-
-            $("#vague").on("click","tr",function(){
-
-                var msg=$(this).text();
-                $("#fyZldz").val(msg);
-
-                $("#suggest").hide();
-            });
-        });
-        function search() {
-            location.href="{% url 'recruit:page' %}?city="+$('#fyXq').val()+"&job_name="+$('#fyZldz')+"&num=1&method=vague";
         }
+
 
     </script>
 
