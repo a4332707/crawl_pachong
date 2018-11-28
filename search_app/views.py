@@ -1,3 +1,5 @@
+import random
+import time
 from django.core.paginator import Paginator
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
@@ -11,6 +13,20 @@ from search_app.models import RecruitInfo
 def main(request):
     return render(request,'main.html')
 def page(request):
+    v_cookie=request.COOKIES.get('v_pass')
+    if not v_cookie:
+        vister=Vister()
+        v_pass=random.sample('qwertyuiopasdfghjkzxcvbnm',8)
+        request.session[str(v_pass)]=vister
+        page = Paginator(object_list=RecruitInfo.objects.filter(city="北京", job_category='大数据'), per_page=20).page(1)
+        resp = render(request, 'menu.html', {'page': page, 'num':1})
+        resp.set_cookie('v_pass', str(v_pass))
+        return resp
+    else:
+        vister=request.session.get(v_cookie)
+        vister.all_time+=1
+        v_pass=v_cookie
+        request.session[str(v_pass)] = vister
     num = request.GET.get("num")
     city = request.GET.get('city')
     if not city:
@@ -21,8 +37,16 @@ def page(request):
     company = request.GET.get('company')
     if not num:
         num=1
-    page = Paginator(object_list=RecruitInfo.objects.filter(city=city, job_category=category), per_page=20).page(int(num))
-    return render(request,'menu.html',{'page':page,'num':num})
+    page=Paginator(object_list=RecruitInfo.objects.filter(city=city, job_category=category), per_page=20).page(
+        int(num))
+    if vister.check() or not v_cookie:
+        return render(request,'menu.html',{'page':page,'num':num})
+    else:
+        time.sleep(2)
+        return render(request,'menu.html',{'page':page,'num':num})
+
+
+
 # def search(request):
 #     num=request.GET.get('num')
 #     if not num:
@@ -61,7 +85,6 @@ def search_vague(request):
     data=[]
     for i in datas:
         data.append(i['job_name'])
-    print(data)
     return JsonResponse({'data':data})
 def get_data(item):
     return RecruitInfo.objects.filter(city=item).aggregate(Count('id'))['id__count']
@@ -96,3 +119,17 @@ def line(request):
     num_gz=get_data('深圳')
     data=[num_bj,num_sh,num_sz,num_gz]
     return render(request,'line.html',{'data':data})
+class Vister:
+    def __init__(self,all_time=1,first_time=time.time()):
+        self.all_time=all_time
+        self.first_time=first_time
+        self.vip=None
+    def get_cookie(self,request):
+        self.cookie=request.COOKIES['v_pass']
+    def check(self):
+        if self.all_time>50:
+            result=time.time() - self.first_time
+            if result<1:
+                self.all_time = 0
+                return None
+        return True
