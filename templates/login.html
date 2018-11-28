@@ -20,9 +20,10 @@
 <div class="log">
 	<div class="content1">
 		<h2>Login</h2>
-		<form method="get" action="{% url 'pachong:login_logic' %}">
-			<input type="text" name="username" value="USERNAME" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'USERNAME';}">
-			<input type="password" name="password" value="PASSWORD" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'PASSWORD';}">
+		<form method="post" action="{% url 'lr:login_logic' %}">
+            {% csrf_token %}
+			<input type="text" name="username" value="USERNAME" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'USERNAME';}" />
+			<input type="password" name="password" value="PASSWORD" onfocus="this.value = '';" onblur="if (this.value == '') {this.value = 'PASSWORD';}" />
 			<div class="button-row">
 				<input type="submit" class="sign-in" value="Sign In">
 				<input type="reset" class="reset" value="Reset">

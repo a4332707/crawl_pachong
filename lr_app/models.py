@@ -67,6 +67,9 @@ class User(models.Model):
     email = models.CharField(max_length=255)
     status = models.IntegerField()
     time = models.DateTimeField()
+    ip=models.CharField(max_length=255)
+    index=models.IntegerField()
+    ip_address=models.CharField(max_length=255)
 
     class Meta:
         managed = False
