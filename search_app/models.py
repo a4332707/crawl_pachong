@@ -37,3 +37,8 @@ class User(models.Model):
     status = models.IntegerField()
     time = models.DateTimeField()
     remark=models.CharField(max_length=255)
+class City(models.Model):
+    city_name=models.CharField(max_length=255)
+    remark=models.CharField(max_length=255)
+    class Meta:
+        db_table = 't_city'
