@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'pachong',
     'lr_app',
+    'search_app'
 ]
 
 MIDDLEWARE = [
