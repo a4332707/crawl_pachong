@@ -1,3 +1,4 @@
+import datetime
 import random
 import string
 import traceback
@@ -13,7 +14,7 @@ from lr_app.models import User
 import os
 from django.core.mail import send_mail, EmailMultiAlternatives
 
-
+from search_app.views import Vister
 
 os.environ['DJANGO_SETTINGS_MODULE']='mid_project.settings' # 发件人的信息所在
 # Create your views here.
@@ -21,6 +22,7 @@ os.environ['DJANGO_SETTINGS_MODULE']='mid_project.settings' # 发件人的信息
 index=1
 
 def login(request):
+
     return render(request,'login.html')
 
 def login_logic(request):
@@ -32,6 +34,16 @@ def login_logic(request):
     #3.校验 username 和 password
     admin = User.objects.get(username=username, password=password)
     print('用户名是:',admin)
+    #给访问者塞cookie
+    v_cookie = request.COOKIES.get('v_pass')
+    if not v_cookie:
+        vister = Vister()
+        v_pass = random.sample('qwertyuiopasdfghjkzxcvbnm', 8)
+        request.session[str(v_pass)] = vister
+    else:
+        vister = request.session.get(v_cookie)
+
+
     if admin: # admin 存在就进入下一个页面
         request.session['user']=username
         response=redirect('pachong:main')
@@ -44,6 +56,7 @@ def login_logic(request):
         ip_address=html.xpath('//*[@id="result"]/div/p[2]/code/text()')[0]
         print(ip_address,'拉个页面是')
         ip_db=admin.ip
+        login_time=datetime.datetime.now()
         if ip==ip_db:
             global index
             index+=1
@@ -55,6 +68,15 @@ def login_logic(request):
             admin.index = index
             admin.ip_address = ip_address
             admin.save()
+        #给登录过的用户做标记
+        vister.vip=True
+        vister.ip = admin.ip
+        vister.username=username
+        vister.login_time=login_time
+        request.session[v_cookie] = vister
+
+        #标记用户为登录状态
+
         return response
 
     # 登陆失败,跳回登录页面
