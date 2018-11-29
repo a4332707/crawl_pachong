@@ -6,7 +6,7 @@ from lxml import etree
 
 import requests
 from django.db import transaction
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from lr_app.models import User
 
@@ -46,7 +46,7 @@ def login_logic(request):
 
     if admin: # admin 存在就进入下一个页面
         request.session['user']=username
-        response=redirect('pachong:main')
+        response=redirect('recruit:main')
 
         ip = request.META['REMOTE_ADDR']
         # ip='203.198.100.201'
@@ -55,7 +55,7 @@ def login_logic(request):
         html=etree.HTML(req.text)
         ip_address=html.xpath('//*[@id="result"]/div/p[2]/code/text()')[0]
         print(ip_address,'拉个页面是')
-        ip_db=admin.ip
+        ip_db=admin[0].ip
         login_time=datetime.datetime.now()
         if ip==ip_db:
             global index
@@ -143,8 +143,8 @@ def get_captcha(request):
     request.session['code'] = code
     print("code is:", code)
     subject, from_email, to = '来自的测试邮件', 'a4332707@sina.com', '%s'%email
-    text_content = '欢迎访问www.baidu.com，祝贺你收到了我的邮件，有幸收到我的邮件说明你极其幸运'
-    html_content = '<p>感谢注册<a href="http://{}/confirm/?code={}" target=blank>这个网站</a>，欢迎你来验证你的邮箱，您收到的验证码是'+code+'验证结束你就可以登录了！</p>'
+    text_content = '欢迎访问pzc，祝贺你收到了我的邮件，有幸收到我的邮件说明你极其幸运'
+    html_content = '<p>感谢注册<a href="http://{}/confirm/?code={}" target=blank>127.0.0.1:8000/lr/login/</a>，欢迎你来验证你的邮箱，您收到的验证码是'+code+'验证结束你就可以登录了！</p>'
     msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
     msg.attach_alternative(html_content, "text/html")
     msg.send()

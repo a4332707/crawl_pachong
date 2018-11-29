@@ -6,18 +6,40 @@ from django.shortcuts import render
 import happybase,hashlib
 # Create your views here.
 from django.db.models import Count, Max,Avg,Min,Sum
+from django.views.decorators.cache import cache_page
 from redis import Redis
 
 from search_app.models import RecruitInfo
 conn_hbase=happybase.Connection(host='172.16.14.56',port=9090)
 conn_hbase.open()
 table=conn_hbase.table('crawler:recruit')
-red=Redis(host='172.16.14.93',port=7000)
+
 #显示主页
 def main(request):
         return render(request,'main.html')
 #查询页面
+index=1
+red=Redis(host='172.16.14.93',port=7000)
+def search_ip_from_redis(ip):
+    try:
+        for i in red.keys():
+            for j in red.smembers(i.decode()):
+                if str(ip)==eval(j.decode())['ip']:
+                    return j.decode()
+                else:
+                    return 0
+    except:
+        pass
 def page(request):
+
+    username=request.session.get('username')
+    ip = request.META['REMOTE_ADDR']
+    result=search_ip_from_redis(ip)
+    if result:
+        global index
+        index+=1
+        log_redis_user()
+    log_redis_user(user=username,ip=ip)
     v_cookie = request.COOKIES.get('v_pass')
     if not v_cookie:
         vister=Vister()
@@ -40,6 +62,7 @@ def page(request):
     if not category:
         category='大数据'
     website = request.GET.get('website')
+
     if not website:
         website = '内推网'
     job_name = request.GET.get('job_name')
@@ -50,7 +73,7 @@ def page(request):
         num=1
     if int(num)>5 and not vister.vip:
         num=5
-    if int(num) > 10:
+    if int(num) > 2:
         if vister.check() or not v_cookie and vister.crawler:
             return search(request,website,city,category,job_name,num)
         else:
@@ -63,6 +86,8 @@ def page(request):
         else:
             time.sleep(30)
             return render(request,'menu.html',{'page':page,'num':num})
+
+
 #hbase上查询数据
 def search(request,website,city,category,job_name,num):
     row_start=website+':'+city+':'+category+':'+job_name
@@ -134,9 +159,10 @@ class Vister:
                 return None
             self.all_time=1
         return True
+
 #用户登录了访问了哪个城市,哪个类数据
-def log_redis_user(user=None,ip=None,city=None,category=None,login_time=None,request_time=None):
-    data={'username':user,'value':{'ip':ip,'city':city,'job_category':category,'login_time':login_time,'request_time':request_time}}
+def log_redis_user(user=None,ip=None,index=None,city=None,category=None,login_time=None,request_time=None):
+    data={'username':user,'value':{'ip':ip,'index':index,'city':city,'job_category':category,'login_time':login_time,'request_time':request_time}}
     red.lpush('user_log',data)
 
 

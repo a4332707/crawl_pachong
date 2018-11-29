@@ -13,6 +13,8 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+from django_redis import cache
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -139,3 +141,14 @@ EMAIL_HOST = 'smtp.sina.com'
 EMAIL_PORT = 25
 EMAIL_HOST_USER = 'a4332707@sina.com'
 EMAIL_HOST_PASSWORD = 'zkf666888'
+
+CACHES = {
+      "default": {
+         "BACKEND": "django_redis.cache.RedisCache", #Redis缓存入口，其中使用DefaultClient操作缓存
+         "LOCATION": "redis://172.16.14.93/3", #ip:port/db_index
+         "OPTIONS": {
+           "CLIENT_CLASS": "django_redis.client.DefaultClient" #操作缓存的对象
+         }
+      }
+}
+
