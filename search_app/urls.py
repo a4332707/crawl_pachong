@@ -11,5 +11,6 @@ urlpatterns = [
     path('pie/', views.pie, name='pie'),
     path('map/', views.map, name='map'),
     path('line/', views.line, name='line'),
+    path('introduce/', views.introduce, name='introduce'),
 
 ]
