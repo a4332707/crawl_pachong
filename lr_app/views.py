@@ -23,7 +23,6 @@ os.environ['DJANGO_SETTINGS_MODULE']='mid_project.settings' # 发件人的信息
 index=1
 
 def login(request):
-
     return render(request,'login.html')
 
 def login_logic(request):
@@ -43,11 +42,13 @@ def login_logic(request):
         request.session[str(v_pass)] = vister
     else:
         vister = request.session.get(v_cookie)
+        v_pass=v_cookie
 
 
     if admin: # admin 存在就进入下一个页面
         request.session['user']=username
-        response=redirect('recruit:page')
+        response=redirect('recruit:main')
+        response.set_cookie('v_pass',v_pass)
 
         ip = request.META['REMOTE_ADDR']
         # ip='203.198.100.201'
@@ -74,6 +75,7 @@ def login_logic(request):
         vister.ip = admin.ip
         vister.username=username
         vister.login_time=login_time
+        vister.ip_address=ip_address
         request.session[v_cookie] = vister
 
         #标记用户为登录状态
