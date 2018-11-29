@@ -53,6 +53,7 @@ def page(request):
     job_name = request.GET.get('job_name')
     if not job_name:
         job_name = '20503-AI应用Linux后台研发工程师（上海）'
+    prev=request.GET.get('prev')
     if not num:
         num=1
     if int(num)>10 and not vister.vip:
@@ -60,11 +61,11 @@ def page(request):
     if int(num) > 5:
         if vister.check() or not v_cookie and vister.crawler:
             log_redis_user(vister.username, vister.ip, city, category, vister.login_time)
-            return search(request,website,city,category,job_name,num)
+            return search(request,website,city,category,job_name,num,prev)
         else:
             time.sleep(30)
             log_redis_user(vister.username, vister.ip, city, category, vister.login_time)
-            return search(request, website, city, category, job_name,num)
+            return search(request, website, city, category, job_name,num,prev)
     else:
         page=Paginator(object_list=RecruitInfo.objects.filter(city=city, job_category=category), per_page=20).page(int(num))
         if vister.check() or not v_cookie and vister.crawler:
@@ -75,16 +76,21 @@ def page(request):
             log_redis_user(vister.username, vister.ip, city, category, vister.login_time)
             return render(request,'menu.html',{'page':page,'num':num})
 #hbase上查询数据
-def search(request,website,city,category,job_name,num):
+def search(request,website,city,category,job_name,num,prev):
     row_start=website+':'+city+':'+category+':'+job_name
-    datas=table.scan(row_start=row_start,columns=['show'],limit=20)
-    l=table.scan()
+    if prev:
+        datas=table.scan(row_start=row_start,columns=['show'],limit=10,reverse=True)
+    else:
+        datas=table.scan(row_start=row_start,columns=['show'],limit=10)
     pages=[]
     for key,value in datas:
         info=dict()
         for i,j in value.items():
             info.update({i.decode()[5:]:j.decode()})
         pages.append(info)
+    if prev:
+        pages.reverse()
+        print('hello')
     return render(request,'menu_base.html',{'page':pages,'num':num})
 def search_vague(request):
     value=request.GET.get('value')
@@ -98,24 +104,31 @@ def search_vague(request):
 def get_data(item):
     return RecruitInfo.objects.filter(city__icontains=item).aggregate(Count('id'))['id__count']
 #获取相应城市的统计数量
+def get_data_hbase(item):
+    datas=[]
+    for i in  table.scan(filter="RowFilter(=,'regexstring:\.*"+item+".*')"):
+        datas.append(i)
+    return len(datas)
 def get_data_city():
-    num_bj = get_data('北京')
-    num_sh = get_data('上海')
-    num_sz = get_data('广州')
-    num_gz = get_data('深圳')
+    num_bj = int(get_data('北京'))+get_data_hbase('北京')
+    num_sh = int(get_data('上海'))+get_data_hbase('上海')
+    num_sz = int(get_data('广州'))+get_data_hbase('广州')
+    num_gz = int(get_data('深圳'))+get_data_hbase('深圳')
     return [num_bj, num_sh, num_sz, num_gz]
+#查询种类的方法
 def get_data_category(item):
     return RecruitInfo.objects.filter(job_category=item).aggregate(Count('id'))['id__count']
+
 #柱状图
 def column(request):
     data=get_data_city()
     return render(request,'column.html',{'data':data})
 #饼图
 def pie(request):
-    python_web= get_data_category('Python Web')
-    crawler = get_data_category('爬虫')
-    big_data = get_data_category('大数据')
-    ai= get_data_category('AI')
+    python_web= int(get_data_category('Python Web'))+get_data_hbase('Python Web')
+    crawler = int(get_data_category('爬虫'))+get_data_hbase('爬虫')
+    big_data = int(get_data_category('大数据'))+get_data_hbase('大数据')
+    ai= int(get_data_category('AI'))+get_data_hbase('AI')
     data = [python_web,crawler,big_data,ai]
     return render(request,'pie.html',{'data': data})
 #地图
