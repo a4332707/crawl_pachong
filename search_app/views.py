@@ -142,10 +142,13 @@ class Vister:
             if result<1:
                 self.all_time = 0
                 self.crawler = None
-
+                #1小时后解除
+                Timer(3600, self.relieve).start()
                 return None
             self.all_time=1
         return True
+    def relieve(self):
+        self.crawler=True
 #用户登录了访问了哪个城市,哪个类数据
 def log_redis_user(username=None,ip=None,city=None,category=None,login_time=None):
     if not username:
@@ -158,6 +161,3 @@ def log_redis_user(username=None,ip=None,city=None,category=None,login_time=None
     red.lpush('user_log',str(username))
 
 
-def hh():
-    print('hello')
-Timer(5, hh).start()
