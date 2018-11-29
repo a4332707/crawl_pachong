@@ -1,5 +1,8 @@
+import datetime
 import random
 import time
+from threading import Timer
+
 from django.core.paginator import Paginator
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
@@ -19,18 +22,23 @@ def main(request):
 #查询页面
 def page(request):
     v_cookie = request.COOKIES.get('v_pass')
+    ip=request.META['REMOTE_ADDR']
+    print(ip)
     if not v_cookie:
         vister=Vister()
+        vister.ip=ip
         v_pass=random.sample('qwertyuiopasdfghjkzxcvbnm',8)
         request.session[str(v_pass)]=vister
         page = Paginator(object_list=RecruitInfo.objects.filter(city="北京", job_category='大数据'), per_page=20).page(1)
         resp = render(request, 'menu.html', {'page': page, 'num':1})
         resp.set_cookie('v_pass', str(v_pass))
+        log_redis_user(vister.username, vister.ip, "北京", '大数据', vister.login_time)
         return resp
     else:
         vister=request.session.get(v_cookie)
         vister.all_time+=1
         v_pass=v_cookie
+        vister.ip = ip
         request.session[str(v_pass)] = vister
     num = request.GET.get("num")
     city = request.GET.get('city')
@@ -45,23 +53,26 @@ def page(request):
     job_name = request.GET.get('job_name')
     if not job_name:
         job_name = '20503-AI应用Linux后台研发工程师（上海）'
-    company = request.GET.get('company')
     if not num:
         num=1
-    if int(num)>5 and not vister.vip:
-        num=5
-    if int(num) > 10:
+    if int(num)>10 and not vister.vip:
+        num=10
+    if int(num) > 5:
         if vister.check() or not v_cookie and vister.crawler:
+            log_redis_user(vister.username, vister.ip, city, category, vister.login_time)
             return search(request,website,city,category,job_name,num)
         else:
             time.sleep(30)
+            log_redis_user(vister.username, vister.ip, city, category, vister.login_time)
             return search(request, website, city, category, job_name,num)
     else:
         page=Paginator(object_list=RecruitInfo.objects.filter(city=city, job_category=category), per_page=20).page(int(num))
         if vister.check() or not v_cookie and vister.crawler:
+            log_redis_user(vister.username, vister.ip, city, category, vister.login_time)
             return render(request,'menu.html',{'page':page,'num':num})
         else:
             time.sleep(30)
+            log_redis_user(vister.username, vister.ip, city, category, vister.login_time)
             return render(request,'menu.html',{'page':page,'num':num})
 #hbase上查询数据
 def search(request,website,city,category,job_name,num):
@@ -106,7 +117,7 @@ def pie(request):
     big_data = get_data_category('大数据')
     ai= get_data_category('AI')
     data = [python_web,crawler,big_data,ai]
-    return render(request, 'pie.html', {'data': data})
+    return render(request,'pie.html',{'data': data})
 #地图
 def map(request):
     data = get_data_city()
@@ -131,13 +142,22 @@ class Vister:
             if result<1:
                 self.all_time = 0
                 self.crawler = None
+
                 return None
             self.all_time=1
         return True
 #用户登录了访问了哪个城市,哪个类数据
-def log_redis_user(user=None,ip=None,city=None,category=None,login_time=None,request_time=None):
-    data={'username':user,'value':{'ip':ip,'city':city,'job_category':category,'login_time':login_time,'request_time':request_time}}
-    red.lpush('user_log',data)
+def log_redis_user(username=None,ip=None,city=None,category=None,login_time=None):
+    if not username:
+        username=ip
+    request_time=str(datetime.datetime.now())[:-7]
+    data={'ip': ip, 'city': city, 'job_category': category, 'login_time': login_time, 'request_time': request_time}
+    #把用户存到redis中
+    red.sadd(str(username)+':'+request_time,data)
+    #从把用户名存到user_log
+    red.lpush('user_log',str(username))
 
 
-
+def hh():
+    print('hello')
+Timer(5, hh).start()
