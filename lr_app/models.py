@@ -56,7 +56,7 @@ class RecruitInfoMyTest(models.Model):
     remark = models.CharField(max_length=255, blank=True, null=True)
 
     class Meta:
-        managed = False
+
         db_table = 'recruit_info_my_test'
 
 
@@ -72,5 +72,4 @@ class User(models.Model):
     ip_address=models.CharField(max_length=255)
 
     class Meta:
-        managed = False
         db_table = 't_user'

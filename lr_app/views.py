@@ -8,12 +8,13 @@ import requests
 from django.db import transaction
 from django.http import JsonResponse, HttpResponse
 from django.shortcuts import render, redirect
-from lr_app.models import User
+
 
 
 import os
 from django.core.mail import send_mail, EmailMultiAlternatives
 
+from lr_app.models import User
 from search_app.views import Vister
 
 os.environ['DJANGO_SETTINGS_MODULE']='mid_project.settings' # 发件人的信息所在
@@ -46,7 +47,7 @@ def login_logic(request):
 
     if admin: # admin 存在就进入下一个页面
         request.session['user']=username
-        response=redirect('pachong:main')
+        response=redirect('recruit:page')
 
         ip = request.META['REMOTE_ADDR']
         # ip='203.198.100.201'
