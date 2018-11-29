@@ -2,6 +2,7 @@ import datetime
 import random
 import string
 import traceback
+import hashlib
 from lxml import etree
 
 import requests
@@ -19,7 +20,7 @@ from search_app.views import Vister
 os.environ['DJANGO_SETTINGS_MODULE']='mid_project.settings' # 发件人的信息所在
 # Create your views here.
 #  转发登录页面
-index=1
+
 
 def login(request):
     return render(request,'login.html')
@@ -29,10 +30,13 @@ def login_logic(request):
     username = request.POST.get("username")
     password = request.POST.get("password")
 
-    print(username,password)
-    #3.校验 username 和 password
-    admin = User.objects.get(username=username, password=password)
-    print('用户名是:',admin)
+    # 校验 username 和 password
+    admin = User.objects.filter(username=username)
+    salt=admin[0].salt
+    secret_key=admin[0].secret_key
+    secret_key1=addSalt(password,salt)
+    print('密钥',secret_key,secret_key1)
+    print('用户名是:',admin,salt)
     #给访问者塞cookie
     v_cookie = request.COOKIES.get('v_pass')
     if not v_cookie:
@@ -44,8 +48,8 @@ def login_logic(request):
         v_pass=v_cookie
 
 
-    if admin: # admin 存在就进入下一个页面
-        request.session['user']=username
+    if secret_key==secret_key1: # admin 存在就进入下一个页面
+        request.session['username']=username
         response=redirect('recruit:main')
         response.set_cookie('v_pass',v_pass)
 
@@ -55,31 +59,32 @@ def login_logic(request):
         req=requests.get('https://www.ip.cn/index.php?ip='+ip)
         html=etree.HTML(req.text)
         ip_address=html.xpath('//*[@id="result"]/div/p[2]/code/text()')[0]
-        print(ip_address,'拉个页面是')
-        ip_db=admin[0].ip
+        ip_db = admin[0].ip
+        print(ip_db, '数据库查出来的IP是')
+
         login_time=datetime.datetime.now()
-        if ip==ip_db:
-            global index
+        if admin and secret_key==secret_key1: # 如果该IP是之前登陆过的IP
+            index=admin[0].index
             index+=1
-            admin.index = index
-            admin.ip_address=ip_address
-            admin.save()
+            admin[0].index = index
+            admin[0].time=login_time
+            admin[0].save()
         else:
-            admin.ip = ip
-            admin.index = index
-            admin.ip_address = ip_address
-            admin.save()
+            admin[0].ip = ip
+            admin[0].index = 1
+            admin[0].ip_address = ip_address
+            admin[0].time=login_time
+            admin[0].save()
+
         #给登录过的用户做标记
         vister.vip=True
-        vister.ip = admin.ip
+        vister.ip = admin[0].ip
         vister.username=username
         vister.login_time=login_time
         vister.ip_address=ip_address
         request.session[v_cookie] = vister
 
-        #标记用户为登录状态
-
-        return response
+        return response # 验证成功，跳转到主页
 
     # 登陆失败,跳回登录页面
     return redirect('lr:login')
@@ -193,17 +198,29 @@ def register_logic(request):
         password = request.GET.get("password")
         telephone = request.GET.get("telephone")
         print(username,password,telephone,email)
+        l = '1234567890qweiosdfghjklzxcvbnm,\./!@#$%^&*()[]~=-+'
+        salt = ''.join(random.sample(l, 6))
+        tup=addSalt(password,salt) # 加盐
+        secret_key=tup[0]
+        print('盐和密码',salt,secret_key)
         # 入库
         with transaction.atomic():
             # 电话号 邮箱 验证码 账号密码都验证成功的话,把数据存入数据库
             print('状态码',num_tel,num_email,num_captcha,num_username_password)
             if num_tel==1 and num_email==1 and num_captcha==1 and num_username_password==1:
-                User(username=username,password=password,email=email,telephone=telephone).save()
+                User(username=username,password=password,email=email,telephone=telephone,salt=salt,secret_key=secret_key).save()
                 return redirect('lr:login')  # 衔接登陆功能
             else:
                 return redirect('lr:register')
     except Exception:
         traceback.print_exc()
     #     #注册出错，转回注册页面
-        return JsonResponse(0,safe=False)
+        return redirect('lr:register')
 
+# 加盐
+def addSalt(password,salt):
+    hash_code = hashlib.md5()
+    password = str(password) + salt
+    hash_code.update(password.encode())
+    secret_key =hash_code.hexdigest()
+    return secret_key
