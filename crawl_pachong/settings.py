@@ -137,5 +137,5 @@ SESSION_SERIALIZER='django.contrib.sessions.serializers.PickleSerializer'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.sina.com'
 EMAIL_PORT = 25
-EMAIL_HOST_USER = 'gypan_python@sina.com'
-EMAIL_HOST_PASSWORD = 'gypan1127'
+EMAIL_HOST_USER = 'a4332707@sina.com'
+EMAIL_HOST_PASSWORD = 'zkf666888'
