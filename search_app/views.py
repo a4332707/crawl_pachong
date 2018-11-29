@@ -19,19 +19,6 @@ conn_hbase.open()
 table=conn_hbase.table('crawler:recruit')
 red=Redis(host='172.16.14.110',port=7000)
 #显示主页
-
-os.environ['DJANGO_SETTINGS_MODULE']='mid_project.settings'
-email='a4332707@163.com'
-subject, from_email, to = '来自的测试邮件', 'gypan_python@sina.com', '%s'%email
-text_content = '欢迎访问www.baidu.com，祝贺你收到了我的邮件，有幸收到我的邮件说明你极其幸运'
-html_content = '<p>感谢注册<a href="http://{}/confirm/?code={}" target=blank>这个网站</a>，欢迎你来验证你的邮箱，您收到的验证码是验证结束你就可以登录了！</p>'
-msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
-msg.attach_alternative(html_content, "text/html")
-msg.send()
-
-
-
-
 def main(request):
     return render(request,'main.html')
 def introduce(request):
@@ -193,4 +180,3 @@ def log_redis_user(username=None,ip=None,ip_address=None,city=None,category=None
     red.lpush('user_log',str(username))
 
 
-print(red.smembers(''))
