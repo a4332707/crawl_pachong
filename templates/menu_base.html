@@ -84,13 +84,13 @@
 
                     <div class="ui_frt">
 						<!--    如果是第一页，则只显示下一页、尾页 -->
-                         <a type="button" href="{% url 'recruit:page' %}?city={{ page.0.city }}&category={{ page.0.job_category }}&job_name={{ page.3.job_name }}" class="ui_input_btn01" />首页</a>
+                         <a type="button" href="{% url 'recruit:page' %}" class="ui_input_btn01" />首页</a>
 {#                        {% if page.has_previous %}#}
-                        <a type="button"  class="ui_input_btn01" href="{% url 'recruit:page' %}?city={{ page.0.city }}&category={{ page.0.job_category }}&job_name={{ page.3.job_name }}&pre_job={{ pre_job }}&num={{ num | add:'-1' }}" />上一页</a>
+                        <a type="button"  class="ui_input_btn01" href="{% url 'recruit:page' %}?city={{ page.0.city }}&category={{ page.0.job_category }}&job_name={{ page.0.job_name }}&num={{ num | add:'-1' }}&prev=prev" />上一页</a>
 {#                        {% endif %}#}
 {#                        {% if page.has_next %}#}
                         <a type="button"  class="ui_input_btn01"
-                           onclick="jumpNormalPage(2);" href="{% url 'recruit:page' %}?city={{ page.0.city }}&category={{ page.0.job_category }}&job_name={{ page.3.job_name }}&num={{ num | add:'1' }}"/>下一页
+                           onclick="jumpNormalPage(2);" href="{% url 'recruit:page' %}?city={{ page.9.city }}&category={{ page.9.job_category }}&job_name={{ page.9.job_name }}&num={{ num | add:'1' }}"/>下一页
                         <!--     如果是最后一页，则只显示首页、上一页 -->
 {#                        {% endif %}#}
 {#                        <a type="button"  class="ui_input_btn01"#}
