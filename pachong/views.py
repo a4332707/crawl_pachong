@@ -13,7 +13,6 @@ from pachong.models import User, RecruitInfo
 
 
 def login(request):
-
     return  render(request,"login.html")
 
 #登录逻辑
@@ -54,7 +53,6 @@ def register_logic(request):
 
 
 #主页面
-
 def main(request):
 
     return  render(request,"main.html")
