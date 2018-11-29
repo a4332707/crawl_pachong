@@ -1,8 +1,10 @@
 import datetime
+import os
 import random
 import time
 from threading import Timer
 
+from django.core.mail import EmailMultiAlternatives
 from django.core.paginator import Paginator
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render
@@ -15,15 +17,29 @@ from search_app.models import RecruitInfo
 conn_hbase=happybase.Connection(host='172.16.14.56',port=9090)
 conn_hbase.open()
 table=conn_hbase.table('crawler:recruit')
-red=Redis(host='172.16.14.93',port=7000)
+red=Redis(host='172.16.14.110',port=7000)
 #显示主页
+
+os.environ['DJANGO_SETTINGS_MODULE']='mid_project.settings'
+email='a4332707@163.com'
+subject, from_email, to = '来自的测试邮件', 'gypan_python@sina.com', '%s'%email
+text_content = '欢迎访问www.baidu.com，祝贺你收到了我的邮件，有幸收到我的邮件说明你极其幸运'
+html_content = '<p>感谢注册<a href="http://{}/confirm/?code={}" target=blank>这个网站</a>，欢迎你来验证你的邮箱，您收到的验证码是验证结束你就可以登录了！</p>'
+msg = EmailMultiAlternatives(subject, text_content, from_email, [to])
+msg.attach_alternative(html_content, "text/html")
+msg.send()
+
+
+
+
 def main(request):
-        return render(request,'main.html')
+    return render(request,'main.html')
+def introduce(request):
+    return render(request,'introduce.html')
 #查询页面
 def page(request):
     v_cookie = request.COOKIES.get('v_pass')
     ip=request.META['REMOTE_ADDR']
-    print(ip)
     if not v_cookie:
         vister=Vister()
         vister.ip=ip
@@ -32,7 +48,7 @@ def page(request):
         page = Paginator(object_list=RecruitInfo.objects.filter(city="北京", job_category='大数据'), per_page=20).page(1)
         resp = render(request, 'menu.html', {'page': page, 'num':1})
         resp.set_cookie('v_pass', str(v_pass))
-        log_redis_user(vister.username, vister.ip, "北京", '大数据', vister.login_time)
+        log_redis_user(vister.username, vister.ip,vister.ip_address, "北京", '大数据', vister.login_time)
         return resp
     else:
         vister=request.session.get(v_cookie)
@@ -60,20 +76,20 @@ def page(request):
         num=10
     if int(num) > 5:
         if vister.check() or not v_cookie and vister.crawler:
-            log_redis_user(vister.username, vister.ip, city, category, vister.login_time)
+            log_redis_user(vister.username, vister.ip,vister.ip_address, city, category, vister.login_time)
             return search(request,website,city,category,job_name,num,prev)
         else:
             time.sleep(30)
-            log_redis_user(vister.username, vister.ip, city, category, vister.login_time)
+            log_redis_user(vister.username, vister.ip,vister.ip_address, city, category, vister.login_time)
             return search(request, website, city, category, job_name,num,prev)
     else:
         page=Paginator(object_list=RecruitInfo.objects.filter(city=city, job_category=category), per_page=20).page(int(num))
         if vister.check() or not v_cookie and vister.crawler:
-            log_redis_user(vister.username, vister.ip, city, category, vister.login_time)
+            log_redis_user(vister.username, vister.ip,vister.ip_address, city, category, vister.login_time)
             return render(request,'menu.html',{'page':page,'num':num})
         else:
             time.sleep(30)
-            log_redis_user(vister.username, vister.ip, city, category, vister.login_time)
+            log_redis_user(vister.username, vister.ip,vister.ip_address, city, category, vister.login_time)
             return render(request,'menu.html',{'page':page,'num':num})
 #hbase上查询数据
 def search(request,website,city,category,job_name,num,prev):
@@ -149,6 +165,7 @@ class Vister:
         self.ip=None
         self.username=None
         self.login_time=None
+        self.ip_address=None
     def check(self):
         if self.all_time>10:
             result=time.time() - self.first_time
@@ -163,14 +180,17 @@ class Vister:
     def relieve(self):
         self.crawler=True
 #用户登录了访问了哪个城市,哪个类数据
-def log_redis_user(username=None,ip=None,city=None,category=None,login_time=None):
+def log_redis_user(username=None,ip=None,ip_address=None,city=None,category=None,login_time=None):
     if not username:
         username=ip
+    login_time=str(login_time)[:-7]
     request_time=str(datetime.datetime.now())[:-7]
-    data={'ip': ip, 'city': city, 'job_category': category, 'login_time': login_time, 'request_time': request_time}
+    data={'ip': ip,'ip_address':ip_address, 'city': city, 'job_category': category, 'login_time': login_time, 'request_time': request_time}
     #把用户存到redis中
+    print(data)
     red.sadd(str(username)+':'+request_time,data)
     #从把用户名存到user_log
     red.lpush('user_log',str(username))
 
 
+print(red.smembers(''))
