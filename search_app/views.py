@@ -4,6 +4,7 @@ import random
 import time
 from threading import Timer
 
+from django.core.cache import cache
 from django.core.mail import EmailMultiAlternatives
 from django.core.paginator import Paginator
 from django.http import HttpResponse, JsonResponse
@@ -11,6 +12,7 @@ from django.shortcuts import render
 import happybase,hashlib
 # Create your views here.
 from django.db.models import Count, Max,Avg,Min,Sum
+from django.views.decorators.cache import cache_page
 from redis import Redis
 
 from search_app.models import RecruitInfo
@@ -23,9 +25,12 @@ def main(request):
     return render(request,'main.html')
 def introduce(request):
     return render(request,'introduce.html')
+
 #查询页面
+
 def page(request):
     v_cookie = request.COOKIES.get('v_pass')
+    print('hello',v_cookie)
     ip=request.META['REMOTE_ADDR']
     if not v_cookie:
         vister=Vister()
@@ -39,6 +44,9 @@ def page(request):
         return resp
     else:
         vister=request.session.get(v_cookie)
+        if not vister.all_time:
+            vister.all_time=1
+
         vister.all_time+=1
         v_pass=v_cookie
         vister.ip = ip
@@ -79,6 +87,7 @@ def page(request):
             log_redis_user(vister.username, vister.ip,vister.ip_address, city, category, vister.login_time)
             return render(request,'menu.html',{'page':page,'num':num})
 #hbase上查询数据
+
 def search(request,website,city,category,job_name,num,prev):
     row_start=website+':'+city+':'+category+':'+job_name
     if prev:
@@ -146,7 +155,7 @@ def line(request):
 class Vister:
     def __init__(self,all_time=1,first_time=time.time()):
         self.all_time=all_time
-        self.first_time=first_time
+        self.first_time=int(first_time)
         self.vip=None
         self.crawler=True
         self.ip=None
@@ -155,7 +164,7 @@ class Vister:
         self.ip_address=None
     def check(self):
         if self.all_time>10:
-            result=time.time() - self.first_time
+            result=int(time.time()) - self.first_time
             if result<1:
                 self.all_time = 0
                 self.crawler = None
