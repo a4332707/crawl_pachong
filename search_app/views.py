@@ -97,7 +97,7 @@ def search(request,website,city,category,job_name,num,prev):
     return render(request,'menu_base.html',{'page':pages,'num':num})
 def search_vague(request):
     value=request.GET.get('value')
-    value='大数据'
+    # value='大数据'
     datas=RecruitInfo.objects.filter(job_name__contains=value).values('job_name')[:10]
     data=[]
     for i in datas:
@@ -128,7 +128,7 @@ def column(request):
     return render(request,'column.html',{'data':data})
 #饼图
 def pie(request):
-    python_web= int(get_data_category('Python Web'))+get_data_hbase('Python Web')
+    python_web= int(get_data_category('Python'))+get_data_hbase('Python')
     crawler = int(get_data_category('爬虫'))+get_data_hbase('爬虫')
     big_data = int(get_data_category('大数据'))+get_data_hbase('大数据')
     ai= int(get_data_category('AI'))+get_data_hbase('AI')
