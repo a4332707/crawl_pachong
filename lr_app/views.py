@@ -65,7 +65,10 @@ def login_logic(request):
         login_time=datetime.datetime.now()
         if admin and secret_key==secret_key1: # 如果该IP是之前登陆过的IP
             index=admin[0].index
-            index+=1
+            if index:
+                index+=1
+            else:
+                index=1
             admin[0].index = index
             admin[0].time=login_time
             admin[0].save()
@@ -135,10 +138,6 @@ def ajax_email(request):
         num_email = 1
         print('num_email是多少', num_email)
         return JsonResponse('0', safe=False)  # 满足的话
-
-
-# 注册逻辑
-
 
 
 # 生成验证码并发送至邮箱
