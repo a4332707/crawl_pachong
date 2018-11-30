@@ -27,7 +27,7 @@ def introduce(request):
     return render(request,'introduce.html')
 
 #查询页面
-
+@cache_page(timeout=60,key_prefix='cache_page')
 def page(request):
     v_cookie = request.COOKIES.get('v_pass')
     print('hello',v_cookie)
@@ -87,7 +87,7 @@ def page(request):
             log_redis_user(vister.username, vister.ip,vister.ip_address, city, category, vister.login_time)
             return render(request,'menu.html',{'page':page,'num':num})
 #hbase上查询数据
-
+@cache_page(timeout=60,key_prefix='cache_search')
 def search(request,website,city,category,job_name,num,prev):
     row_start=website+':'+city+':'+category+':'+job_name
     if prev:
@@ -188,4 +188,5 @@ def log_redis_user(username=None,ip=None,ip_address=None,city=None,category=None
     #从把用户名存到user_log
     red.lpush('user_log',str(username))
 
-
+datas=table.row('001')
+print(datas,'ggggggggggggggggggggggggggggggggggggggg')
