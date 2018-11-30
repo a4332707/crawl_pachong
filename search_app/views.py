@@ -188,5 +188,4 @@ def log_redis_user(username=None,ip=None,ip_address=None,city=None,category=None
     #从把用户名存到user_log
     red.lpush('user_log',str(username))
 
-datas=table.row('001')
-print(datas,'ggggggggggggggggggggggggggggggggggggggg')
+
