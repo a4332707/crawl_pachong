@@ -67,8 +67,7 @@
                             <th>招聘人数</th>
 							<th>公司地点</th>
 						</tr>
-
-
+                            {% cache 100 'cache_job' %}
 								{% for i in page.object_list %}
                                 <tr>
                                     <td>{{ i.job_name }}</td>
@@ -80,6 +79,7 @@
                                     <td>{{ i.address }}</td>
                                 </tr>
                                 {% endfor %}
+                            {% endcache %}
 
 					</table>
 				</div>
