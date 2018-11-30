@@ -70,8 +70,6 @@ class User(models.Model):
     ip=models.CharField(max_length=255)
     index=models.IntegerField()
     ip_address=models.CharField(max_length=255)
-    salt=models.CharField(max_length=255)
-    secret_key=models.CharField(max_length=255)
 
     class Meta:
         db_table = 't_user'

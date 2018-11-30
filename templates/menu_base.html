@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 {% load static  %}
+{% load cache %}
 <html xmlns="http://www.w3.org/1999/html">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -57,7 +58,7 @@
 							<th>学历要求</th>
 							<th>公司地点</th>
 						</tr>
-
+                            {% cache 100 'cache_page'  %}
 								{% for i in page %}
                                 <tr>
                                     <td>{{ i.job_name }}</td>
@@ -69,6 +70,7 @@
                                     <td>{{ i.address }}</td>
                                 </tr>
                                 {% endfor %}
+                            {% endcache %}
 					</table>
 				</div>
 

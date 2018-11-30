@@ -139,3 +139,12 @@ EMAIL_HOST = 'smtp.sina.com'
 EMAIL_PORT = 25
 EMAIL_HOST_USER = 'a4332707@sina.com'
 EMAIL_HOST_PASSWORD = 'zkf666888'
+CACHES = {
+    "default": {
+        "BACKEND": "django_redis.cache.RedisCache",
+        "LOCATION": "redis://172.16.14.110:7000/3",
+        "OPTIONS": { "CLIENT_CLASS": "django_redis.client.DefaultClient"}
+        }
+    }
+SESSION_ENGINE='django.contrib.sessions.backends.cache'
+STATIC_ROOT = os.path.join(BASE_DIR,'static')
